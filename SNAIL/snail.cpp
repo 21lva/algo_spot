@@ -1,26 +1,52 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
+double cache1[1001][1001];
+double cache3[1001][1001];
 
-double arr[101][101];
 
-double reach(int day,int height,int obj_day,int obj_depth){
-  //base case
-  if(day == obj_day && height >= obj_depth)return 1;
-  if(day == obj_day) return 0;
-  if(arr[day][height] >= 0) return arr[day][height];
-  return arr[day][height] = 0.25*reach(day+1,height+2,obj_day,obj_depth)+0.75*reach(day+1,height+1,obj_day,obj_depth);
+double prob(int day,int height){
+  // at day, at height
+  if(cache1[day][height]!=-1)return cache1[day][height];
+  if(day==0 && height == 0) return cache1[day][height] = 1;
+  if(day <= 0 || height <= 0 ) return cache1[day][height] = 0;
+  double x = prob(day-1,height-1);
+  double y = prob(day-1,height-2);
+  // cout << "day : " << day << " height : " << height <<" x : "<<x<<" y : "<<y <<endl;
+  return cache1[day][height] = x*0.25+ y*0.75;
 }
 
+double func2(int day,int height){
+  double ret=0;
+  if(cache3[day][height]!=-1)return cache3[day][height];
+  for(int i=height;i<=day*2;i++){
+    double a=prob(day,i);
+    // cout<<a<<endl;
+    // cout<<a<<" "<<i<<" "<<day<<endl;
+    ret+=a;
+  }
+  return ret;
+}
+
+
+void clear_caches(){
+  for(int i=0;i<1001;i++)
+    for(int j=0;j<1001;j++){
+      // ret+=prob2(i,height);
+      cache1[i][j]=-1;
+      cache3[i][j]=-1;
+    }
+}
+
+
 int main(){
-  int depth,day;
-  cin>>depth>>day;
-  for(int i=0;i<101;i++)
-    for(int j=0;j<101;j++)
-      arr[i][j] = -1;
-  cout<< reach(0,0,day,depth) <<endl;
-  cout<<0.25*0.25*0.25+0.25*0.25*0.75*3;
-  return 0;
+  int test_case;
+  cin>>test_case;
+  for(int i=0;i<test_case;i++){
+    clear_caches();
+    int Day,Height;
+    cin>>Height>>Day;
+    cout<<func2(Day,Height)<<endl;
+  }
 }
